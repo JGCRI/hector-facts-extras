@@ -1,0 +1,143 @@
+---
+title: "hector.tlm.global"
+output: html_document
+date: "2024-09-25"
+---
+
+```{r setup, include=FALSE, message = FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning=FALSE)
+
+library(dplyr)
+library(ggplot2)
+library(ncdf4)
+library(tidyr)
+
+theme_set(theme_bw())
+
+DATA_DIR <- here::here("results")
+```
+
+
+Post processing and visualize the results from the Hector-FACTS hector.tlm.global experiment. 
+
+```{r}
+# Extract the summary stats from the netcdf 
+# Args 
+#   nc: path to the netcdf file containing results 
+#   var: str variable name 
+# Returns: data frame of the min/mean/max values 
+get_summary_stats <- function(path, var){
+  
+  nc <- nc_open(path)
+  vals <- ncvar_get(nc, var)
+  yrs <- nc$dim[["years"]]$vals
+  
+  # Pull out the min, max, mean, and median values.. 
+  # TODO could also consider plotting all the ones individually... but idk feeling lazy
+  
+  min <- apply(X = vals, MARGIN = 1, FUN = min) 
+  max <- apply(X = vals, MARGIN = 1, FUN = max) 
+  mean <- apply(X = vals, MARGIN = 1, FUN = mean) 
+  median <-  apply(X = vals, MARGIN = 1, FUN = median) 
+  
+  rslts <- data.frame(year = yrs,
+                      min = min, mean = mean, 
+                      median = median, max = max)
+  return(rslts)
+  
+  
+}
+```
+
+
+```{r}
+# Extract the results from the netcdf and plot results 
+# Args 
+#   path: path to the netcdf file containing results 
+#   var: str variable name 
+# Returns: data frame of the long formatted results  
+get_long_output <- function(path, var){
+  
+  nc <- nc_open(path)
+  vals <- data.frame(ncvar_get(nc, var))
+  yrs <- nc$dim[["years"]]$vals
+  
+  data.frame(ncvar_get(nc, var)) %>%
+    mutate(year = yrs) %>% 
+    pivot_longer(-year, names_to = "id") %>% 
+    mutate(variable = var) -> 
+    long_df
+  
+  return(long_df)
+  
+}
+```
+
+```{r}
+sl_nc <- file.path(DATA_DIR, "hector.tlm.global", "output", "hector.tlm.global.ocean.tlm.sterodynamics_globalsl.nc")
+slr_rslts <- get_long_output(sl_nc, "sea_level_change")
+
+ggplot(data = slr_rslts) + 
+  geom_line(aes(year, value, group = id), alpha = 0.08) + 
+  labs(x = "Year", y = "Sea Level Rise (mm)", 
+       title = "SSP5-8.5 Sea-Level Rise") -> 
+  plot; plot
+
+ggsave(plot, filename = "figs/hector-tlm-global-1.png")
+```
+
+
+```{r}
+slr_rslts %>% 
+  filter(year %in% c(2050, 2100)) %>% 
+  mutate(year = as.character(year)) %>% 
+  ggplot() + 
+  geom_histogram(aes(value, fill = year), bins = 100, alpha = 0.5) + 
+  theme(legend.title = element_blank(), legend.position = c(0.9, 0.9)) + 
+    labs(y = "Count", x = "Sea Level Rise (mm)", 
+    title = "SSP5-8.5 Sea-Level Rise") -> 
+  plot; plot 
+
+ggsave(plot, filename = "figs/hector-tlm-global-2.png")
+```
+
+Summary results in 2020 
+
+```{r}
+slr_rslts %>% 
+  filter(year == 2020) %>% 
+  pull(value) %>% 
+  summary() -> 
+  rslts_2020
+```
+Summary results in 2050 
+```{r}
+slr_rslts %>% 
+  filter(year == 2050) %>% 
+  pull(value) %>% 
+  summary() -> 
+  rslts_2050
+```
+
+Summary results in 2100 
+```{r}
+slr_rslts %>% 
+  filter(year == 2100) %>% 
+  pull(value) %>% 
+  summary() -> 
+  rslts_2100
+```
+
+Summary results in 2150 
+```{r}
+slr_rslts %>% 
+  filter(year == 2150) %>% 
+  pull(value) %>% 
+  summary() -> 
+  rslts_2150
+```
+
+Change in Mean SLR 
+```{r}
+rslts_2150 - rslts_2020
+```
