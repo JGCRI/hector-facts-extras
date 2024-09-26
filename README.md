@@ -19,5 +19,5 @@ Materials in support of the [Hector-FACTS](https://github.com/JGCRI/hector-facts
 | Run Order      |Name                       | Description                                              |
 |:---------------|--------------------------:|---------------------------------------------------------:|
 |1               | L0.prep_hector_inputs.R   |Uses [Matilda](https://github.com/JGCRI/matilda) to generate the ensmble of Hector parameters that will be used as inputs into Hector-FACTS. This script also compresses the hector_params file and the hector-input directory into the appropriate files for the Hector-FACTS framework|
-| 2              |results/get-results.sh     |Launch the Hector-FACTS runs or download the minted results stored on zenodo| 
+| 2              |data/get-results.sh     |Launch the Hector-FACTS runs or download the minted results stored on zenodo| 
 |3               |Analysis Scripts           |Any of the Rmarkdown files R script here can be run after the Hector-FACTS results are available to process results and generate figures|
