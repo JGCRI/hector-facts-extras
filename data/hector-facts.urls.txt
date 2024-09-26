@@ -1,0 +1,2 @@
+https://zenodo.org/records/13841030/files/hector.tlm.global.zip
+https://zenodo.org/records/13841030/files/hector-input.tgz

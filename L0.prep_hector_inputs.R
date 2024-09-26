@@ -108,7 +108,7 @@ runhector <- function(hc, pars){
 }
 
 # Path to the local ini file that will be used in the Hector-FACTS set up
-hc_ssp585 <- newcore(file.path(BASEDIR, "hector-input", "hector_ssp585.ini"))
+hc_ssp585 <- newcore(file.path(BASEDIR, "data","hector-input", "hector_ssp585.ini"))
 
 # Run hector for all the different parameter combinations
 ssp585_rstlts <- apply(params, 1, runhector, hc = hc_ssp585)
@@ -138,6 +138,6 @@ system(paste("tar -czf", "hector_params.tgz", "hector_params.csv"))
 
 
 # 3. Compress the hector-inputs directory  -------------------------------------
-system(paste("tar -czvf", "hector-input.tgz", "hector-input"))
+system(paste("tar -czvf", "data/hector-input.tgz", "hector-input"))
 
 
